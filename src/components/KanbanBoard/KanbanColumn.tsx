@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { KanbanColumn as KanbanColumnType, KanbanTask } from './KanbanBoard.types';
 import { KanbanCard } from './KanbanCard';
 import { getTaskCount, isAtLimit, isApproachingLimit, getWipWarningColor } from '../../utils/column.utils';
@@ -11,6 +11,13 @@ interface KanbanColumnProps {
   onDeleteTask?: (taskId: string) => void;
   onAddTask?: () => void;
   isOverColumn?: boolean;
+  onDrop?: (e: React.DragEvent, columnId: string) => void;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDragEnter?: (e: React.DragEvent) => void;
+  onDragLeave?: (e: React.DragEvent) => void;
+  isTaskDragging?: (taskId: string) => boolean;
+  onTaskDragStart?: (e: React.DragEvent) => void;
+  onTaskDragEnd?: () => void;
 }
 
 export const KanbanColumn: React.FC<KanbanColumnProps> = ({
@@ -20,7 +27,15 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   onDeleteTask,
   onAddTask,
   isOverColumn = false,
+  onDrop,
+  onDragOver,
+  onDragEnter,
+  onDragLeave,
+  isTaskDragging,
+  onTaskDragStart,
+  onTaskDragEnd,
 }) => {
+  const [isDragOverColumn, setIsDragOverColumn] = useState(false);
   const taskCount = getTaskCount(column.taskIds);
   const isAtWipLimit = isAtLimit(column.taskIds, column.maxTasks);
   const isApproachingWipLimit = isApproachingLimit(column.taskIds, column.maxTasks);
@@ -30,14 +45,42 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
     .map((id) => tasks[id])
     .filter((task): task is KanbanTask => task !== undefined);
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOverColumn(true);
+    onDragOver?.(e);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.currentTarget === e.target) {
+      setIsDragOverColumn(false);
+      onDragLeave?.(e);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOverColumn(false);
+    onDrop?.(e, column.id);
+  };
+
+  const showDropIndicator = isOverColumn || isDragOverColumn;
+
   return (
     <div
       className={clsx(
         'flex flex-col w-80 bg-neutral-50 rounded-lg border-2 border-transparent',
         {
-          'border-primary-400 bg-primary-50': isOverColumn,
+          'border-primary-400 bg-primary-50': showDropIndicator,
         }
       )}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
       role="region"
       aria-label={`${column.title} column. ${taskCount} tasks.`}
     >
@@ -83,8 +126,11 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
             <KanbanCard
               key={task.id}
               task={task}
+              isDragging={isTaskDragging?.(task.id) || false}
               onEdit={onEditTask}
               onDelete={onDeleteTask}
+              onDragStart={onTaskDragStart}
+              onDragEnd={onTaskDragEnd}
             />
           ))
         )}

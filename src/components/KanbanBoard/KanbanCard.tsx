@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { KanbanTask } from './KanbanBoard.types';
 import { isOverdue, formatDate, getPriorityColor } from '../../utils/task.utils';
 import { Avatar } from './primitives/Avatar';
@@ -9,6 +9,9 @@ interface KanbanCardProps {
   isDragging?: boolean;
   onEdit?: (task: KanbanTask) => void;
   onDelete?: (taskId: string) => void;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  draggable?: boolean;
 }
 
 export const KanbanCard: React.FC<KanbanCardProps> = ({
@@ -16,8 +19,38 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
   isDragging = false,
   onEdit,
   onDelete,
+  onDragStart,
+  onDragEnd,
+  draggable = true,
 }) => {
+  const [isKeyboardDrag, setIsKeyboardDrag] = useState(false);
   const priorityBorderColor = task.priority ? getPriorityColor(task.priority) : '';
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === ' ' && draggable) {
+      e.preventDefault();
+      setIsKeyboardDrag(true);
+      // Trigger drag start
+      onDragStart?.(e as unknown as React.DragEvent);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      onEdit?.(task);
+    }
+  };
+
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', task.id);
+    onDragStart?.(e);
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Only trigger edit if not dragging
+    if (!isDragging && !isKeyboardDrag) {
+      onEdit?.(task);
+    }
+    setIsKeyboardDrag(false);
+  };
 
   return (
     <div
@@ -28,16 +61,17 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
           'ring-2 ring-primary-500': isDragging,
         }
       )}
-      onClick={() => onEdit?.(task)}
+      draggable={draggable}
+      onDragStart={handleDragStart}
+      onDragEnd={(e) => {
+        setIsKeyboardDrag(false);
+        onDragEnd?.(e);
+      }}
+      onClick={handleClick}
       role="button"
       tabIndex={0}
-      aria-label={`${task.title}. Status: ${task.status}. Priority: ${task.priority || 'none'}. Press space to grab.`}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onEdit?.(task);
-        }
-      }}
+      aria-label={`${task.title}. Status: ${task.status}. Priority: ${task.priority || 'none'}. ${draggable ? 'Press space to grab.' : ''}`}
+      onKeyDown={handleKeyDown}
     >
       {/* Priority Indicator */}
       {task.priority && (
