@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { KanbanColumn } from './KanbanColumn';
-import { KanbanViewProps } from './KanbanBoard.types';
+import { KanbanViewProps, KanbanTask } from './KanbanBoard.types';
 import { KanbanCard } from './KanbanCard';
+import { TaskModal } from './TaskModal';
 import './KanbanBoard.css';
 
 export const KanbanBoard: React.FC<KanbanViewProps> = ({
@@ -14,10 +15,13 @@ export const KanbanBoard: React.FC<KanbanViewProps> = ({
 }) => {
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [draggedFromColumn, setDraggedFromColumn] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<KanbanTask | undefined>(undefined);
+  const [newTaskColumn, setNewTaskColumn] = useState<string>('');
 
-  const handleEditTask = (task: any) => {
-    // TODO: Open modal for editing
-    console.log('Edit task:', task);
+  const handleEditTask = (task: KanbanTask) => {
+    setEditingTask(task);
+    setIsModalOpen(true);
   };
 
   const handleDeleteTask = (taskId: string) => {
@@ -27,8 +31,19 @@ export const KanbanBoard: React.FC<KanbanViewProps> = ({
   };
 
   const handleAddTask = (columnId: string) => {
-    // TODO: Open modal for creating new task
-    console.log('Add task to column:', columnId);
+    setNewTaskColumn(columnId);
+    setEditingTask(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveTask = (task: KanbanTask) => {
+    if (editingTask) {
+      onTaskUpdate(task.id, task);
+    } else {
+      // Create new task
+      const taskToCreate = { ...task, status: newTaskColumn || columns[0].id };
+      onTaskCreate(taskToCreate.status, taskToCreate);
+    }
   };
 
   const handleDragStart = (e: React.DragEvent) => {
@@ -69,24 +84,36 @@ export const KanbanBoard: React.FC<KanbanViewProps> = ({
   };
 
   return (
-    <div className="kanban-board p-6 bg-neutral-100 min-h-screen">
-      <div className="flex gap-6 overflow-x-auto pb-4">
-        {columns.map((column) => (
-          <KanbanColumn
-            key={column.id}
-            column={column}
-            tasks={tasks}
-            onEditTask={handleEditTask}
-            onDeleteTask={handleDeleteTask}
-            onAddTask={() => handleAddTask(column.id)}
-            onDrop={handleDrop}
-            isTaskDragging={(taskId: string) => draggedTaskId === taskId}
-            onTaskDragStart={handleDragStart}
-            onTaskDragEnd={handleDragEnd}
-          />
-        ))}
+    <>
+      <TaskModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingTask(undefined);
+        }}
+        task={editingTask}
+        columns={columns}
+        onSave={handleSaveTask}
+      />
+      <div className="kanban-board p-6 bg-neutral-100 min-h-screen">
+        <div className="flex gap-6 overflow-x-auto pb-4">
+          {columns.map((column) => (
+            <KanbanColumn
+              key={column.id}
+              column={column}
+              tasks={tasks}
+              onEditTask={handleEditTask}
+              onDeleteTask={handleDeleteTask}
+              onAddTask={() => handleAddTask(column.id)}
+              onDrop={handleDrop}
+              isTaskDragging={(taskId: string) => draggedTaskId === taskId}
+              onTaskDragStart={handleDragStart}
+              onTaskDragEnd={handleDragEnd}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
