@@ -1,73 +1,110 @@
-# React + TypeScript + Vite
+# Kanban Board Component
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A production-ready, fully accessible Kanban Board component built with React, TypeScript, and Tailwind CSS.
 
-Currently, two official plugins are available:
+## 🚀 Live Storybook
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[Your Deployed Storybook URL - Coming Soon]
 
-## React Compiler
+## 📦 Installation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run storybook
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🏗️ Architecture
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+This Kanban Board component follows enterprise-grade architecture patterns:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Component-based design** with primitives, hooks, and utilities
+- **Type-safe development** with strict TypeScript
+- **Accessible by default** with WCAG 2.1 AA compliance
+- **Performance optimized** with virtualization support
+- **Fully documented** with comprehensive Storybook stories
+
+## ✨ Features
+
+- [x] Drag-and-drop tasks between columns
+- [x] Task creation/editing modal
+- [x] Priority indicators (Low, Medium, High, Urgent)
+- [x] Task assignees with avatar initials
+- [x] Tag management
+- [x] Due date tracking with overdue warnings
+- [x] WIP limits with visual warnings
+- [x] Responsive design (mobile, tablet, desktop)
+- [x] Keyboard accessibility
+- [x] ARIA labels and semantic HTML
+- [x] Custom Tailwind design system
+
+## 📚 Storybook Stories
+
+- **Default** - Standard board with 4 columns and sample tasks
+- **Empty** - Empty board state demonstration
+- **With Many Tasks** - Board with 35+ tasks to test performance
+- **Different Priorities** - Showcase all priority levels
+- **Mobile View** - Responsive layout demonstration
+
+## 🛠️ Technologies
+
+- **React** - Component framework
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first styling
+- **Vite** - Next-generation build tool
+- **Storybook** - Component documentation and testing
+- **clsx** - Conditional class management
+
+## 📁 Project Structure
+
 ```
+kanban-component/
+├── src/
+│   ├── components/
+│   │   └── KanbanBoard/
+│   │       ├── KanbanBoard.tsx
+│   │       ├── KanbanBoard.stories.tsx
+│   │       ├── KanbanBoard.types.ts
+│   │       ├── KanbanColumn.tsx
+│   │       ├── KanbanCard.tsx
+│   │       ├── TaskModal.tsx
+│   │       └── primitives/
+│   │           ├── Button.tsx
+│   │           ├── Modal.tsx
+│   │           └── Avatar.tsx
+│   ├── hooks/
+│   │   ├── useDragAndDrop.ts
+│   │   └── useKanbanBoard.ts
+│   ├── utils/
+│   │   ├── task.utils.ts
+│   │   └── column.utils.ts
+│   └── styles/
+│       └── globals.css
+├── .storybook/
+│   ├── main.ts
+│   └── preview.ts
+└── README.md
+```
+
+## 🔧 Development
+
+```bash
+# Development server
+npm run dev
+
+# Storybook
+npm run storybook
+
+# Build
+npm run build
+
+# Build Storybook
+npm run build-storybook
+```
+
+## 📝 License
+
+MIT
+
+## 👤 Contact
+
+[Your email]
